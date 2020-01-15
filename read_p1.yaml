@@ -1,7 +1,7 @@
 esphome:
   name: esp_dsmr
-  platform: ESP8266
-  board: d1_mini
+  platform: ESP32
+  board: wemos_d1_mini32
   includes:
     - dsmr_p1_uart.h
   libraries:
@@ -21,7 +21,7 @@ captive_portal:
 # Enable logging
 logger:
   level: DEBUG
-  esp8266_store_log_strings_in_flash: False
+#  esp8266_store_log_strings_in_flash: False
 
 # Enable Home Assistant API
 api:
