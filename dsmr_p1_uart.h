@@ -42,21 +42,21 @@ class CustomP1UartComponent : public Component, public uart::UARTDevice {
    bool footerfound;
    unsigned long lastread;
    int bytes_read;
-  
+
   bool data_available() {
 	// See if there's data available.
 	unsigned long currentMillis = millis();
-	unsigned long previousMillis = currentMillis; 
-  
+	unsigned long previousMillis = currentMillis;
+
 	while (currentMillis - previousMillis < WAIT_FOR_DATA_MS) { // wait in miliseconds
 		currentMillis = millis();
 		if (available()) {
 			return true;
 		}
 	}
-	return false;  
-  }  
-   
+	return false;
+  }
+
   bool read_message() {
 	//ESP_LOGD("DmsrCustom","Read message");
 	headerfound = false;
@@ -64,14 +64,14 @@ class CustomP1UartComponent : public Component, public uart::UARTDevice {
 	telegramlen = 0;
 	bytes_read = 0;
 	unsigned long currentMillis = millis();
-	unsigned long previousMillis = currentMillis; 	
-	
+	unsigned long previousMillis = currentMillis;
+
 	if (available()) { // Check to be sure
 		// Messages come in batches. Read until footer.
 		while (!footerfound && currentMillis - previousMillis < 5000) { // Loop while there's no footer found with a maximum of 5 seconds
 			currentMillis = millis();
 			// Loop while there's data to read
-			while (available()) { // Loop while there's data 
+			while (available()) { // Loop while there's data
 				if (telegramlen >= P1_MAXTELEGRAMLENGTH) {  // Buffer overflow
 					headerfound = false;
 					footerfound = false;
@@ -103,13 +103,13 @@ class CustomP1UartComponent : public Component, public uart::UARTDevice {
 								publish_sensors(data);
 								return true; // break out function
 							}
-						}	
+						}
 					}
-				} 
-			} // While data available	
-		} // !footerfound	
-	} 	
-	return false;	  
+				}
+			} // While data available
+		} // !footerfound
+	}
+	return false;
   }
 
   void publish_sensors(MyData data){
@@ -134,8 +134,8 @@ class CustomP1UartComponent : public Component, public uart::UARTDevice {
 	if(data.gas_device_type_present)s_gas_device_type->publish_state(data.gas_device_type);
 	if(data.gas_valve_position_present)s_gas_valve_position->publish_state(data.gas_valve_position);
 	if(data.gas_delivered_present)s_gas_delivered->publish_state(data.gas_delivered);
-  };  
-   
+  };
+
  public:
   CustomP1UartComponent(UARTComponent *parent) : UARTDevice(parent) {}
   Sensor *s_energy_delivered_tariff1 = new Sensor();
@@ -160,29 +160,29 @@ class CustomP1UartComponent : public Component, public uart::UARTDevice {
   Sensor *s_power_returned_l3 = new Sensor();
   Sensor *s_gas_device_type = new Sensor();
   Sensor *s_gas_valve_position = new Sensor();
-  Sensor *s_gas_delivered = new Sensor(); 
+  Sensor *s_gas_delivered = new Sensor();
 
   void setup() override {
     lastread = 0;
-	pinMode(D5, OUTPUT); // Set D5 as output pin
-	digitalWrite(D5,LOW); // Set low, don't request message from P1 port
+	pinMode(5, OUTPUT); // Set D5 as output pin
+	digitalWrite(5,LOW); // Set low, don't request message from P1 port
   }
-  
+
   void loop() override {
 	unsigned long now = millis();
-	
+
 	if (now - lastread > DELAY_MS || lastread == 0) {
 		lastread = now;
-		digitalWrite(D5,HIGH); // Set high, request new message from P1 port
+		digitalWrite(5,HIGH); // Set high, request new message from P1 port
 		if (data_available()) { // Check for x seconds if there's data available
 			bool have_message = read_message();
-			if (have_message) { 
-				digitalWrite(D5,LOW); // Set low, stop requesting messages from P1 port
+			if (have_message) {
+				digitalWrite(5,LOW); // Set low, stop requesting messages from P1 port
 			} // If No message was read, keep output port high and retry later
 		} else {
 				ESP_LOGD("DmsrCustom","No data available. Is P1 port connected?");
-		}	
+		}
 	}
-  }	
+  }
 
 };
