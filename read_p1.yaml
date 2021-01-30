@@ -1,19 +1,19 @@
 esphome:
   name: esp_dsmr
-  platform: ESP32
-  board: wemos_d1_mini32
+  platform: ESP8266
+  board: d1_mini_lite
   includes:
     - dsmr_p1_uart.h
   libraries:
     - "Dsmr"
 
 wifi:
-  ssid: wifissid
-  password: wifipass
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
-    ssid: "esp_dsmr_uart Fallback Hotspot"
+    ssid: "esp_dsmr_fallback"
     password: ""
 
 captive_portal:
@@ -21,7 +21,7 @@ captive_portal:
 # Enable logging
 logger:
   level: DEBUG
-#  esp8266_store_log_strings_in_flash: False
+  esp8266_store_log_strings_in_flash: False
 
 # Enable Home Assistant API
 api:
@@ -31,7 +31,7 @@ ota:
   password: ""
 
 uart:
-  - rx_pin: GPIO21
+  - rx_pin: GPIO3
     baud_rate: 115200
     id: uart_bus
 
